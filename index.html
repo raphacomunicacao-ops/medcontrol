@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MedControl</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#21504F">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MedControl">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #E9F0EB;
+    --bg-elev: #FFFFFF;
+    --ink: #1B2A28;
+    --ink-soft: #59685F;
+    --ink-faint: #8A978F;
+    --line: #D3DED6;
+    --primary: #21504F;
+    --primary-dark: #153635;
+    --primary-soft: #DCE8E4;
+    --taken: #4C7A63;
+    --taken-bg: #E1EEE6;
+    --amber: #B9762A;
+    --amber-bg: #FAEDDC;
+    --red: #B14A34;
+    --red-bg: #F6E4DE;
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 4px 16px rgba(21,54,53,0.10);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: linear-gradient(180deg, #E4EEE7 0%, #ECF2ED 340px, #ECF2ED 100%);
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app-root{
+    max-width: 520px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: transparent;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+  .topbar{
+    padding: 22px 20px 16px;
+  }
+  .brand-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand-logo{
+    height: 32px;
+    width: auto;
+    display:block;
+  }
+  .logout-btn{
+    font-family: var(--font-body);
+    font-size:11.5px;
+    font-weight:600;
+    color: var(--ink-soft);
+    background: var(--bg-elev);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:6px 13px;
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+  .logout-btn:active{ transform: scale(0.96); }
+  .today-card{
+    background: var(--bg-elev);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .today-date{
+    font-size:14.5px;
+    color: var(--ink);
+    font-weight:500;
+    text-transform:capitalize;
+  }
+  .today-sub{
+    font-family: var(--font-mono);
+    font-size:11.5px;
+    color: var(--ink-faint);
+    margin-top:2px;
+  }
+  .holiday-badge{
+    font-size:11px;
+    font-weight:600;
+    color: var(--amber);
+    background: var(--amber-bg);
+    padding:5px 9px;
+    border-radius: 20px;
+    white-space:nowrap;
+  }
+  .install-banner{
+    margin-top:10px;
+    background: var(--primary-soft);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    justify-content:space-between;
+  }
+  .install-banner .install-text{ font-size:12.5px; color: var(--primary-dark); line-height:1.4; }
+  .install-banner-actions{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+  .install-dismiss{ background:none; border:none; color: var(--primary-dark); font-size:14px; cursor:pointer; opacity:0.6; padding:4px; }
+  main{
+    flex:1;
+    padding: 4px 20px 100px;
+  }
+  .stock-alert{
+    background: var(--amber-bg);
+    border: 1px solid #EAD4B0;
+    color:#7A4E17;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-size:13px;
+    margin-bottom:16px;
+    line-height:1.5;
+  }
+  .stock-alert b{font-weight:600;}
+  .section-label{
+    font-family: var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--ink-faint);
+    margin: 18px 0 10px;
+  }
+  .empty-state{
+    text-align:center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+  }
+  .empty-state .pill-icon{
+    font-size:38px;
+    display:block;
+    margin-bottom:14px;
+  }
+  .empty-state p{
+    font-size:14.5px;
+    line-height:1.6;
+    margin: 0 0 18px;
+  }
+  .success-banner{
+    background: var(--taken-bg);
+    border-radius: var(--radius-md);
+    padding: 18px 16px;
+    text-align:center;
+    color: var(--primary-dark);
+    font-weight:500;
+    font-size:14.5px;
+    margin-bottom: 16px;
+  }
+  .btn{
+    font-family: var(--font-body);
+    font-size:14px;
+    font-weight:600;
+    border:none;
+    border-radius: 30px;
+    padding: 12px 20px;
+    cursor:pointer;
+    transition: transform .12s ease, opacity .12s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-primary{ background: var(--primary); color:#fff; }
+  .btn-ghost{ background: var(--bg-elev); color: var(--primary-dark); border:1px solid var(--line); }
+  .btn-danger{ background: var(--red-bg); color: var(--red); }
+  .btn-block{ width:100%; }
+  .btn-sm{ font-size:12.5px; padding: 7px 12px; }
+
+  .dose-table{ width:100%; border-collapse:separate; border-spacing:0 8px; }
+  .dose-table thead th{ text-align:left; font-family: var(--font-mono); font-size:10.5px; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-faint); font-weight:500; padding:0 12px 4px; }
+  .dose-table thead th.col-check{ text-align:center; width:60px; }
+  .dose-table tbody td{ background: var(--bg-elev); padding:12px 10px; font-size:14px; box-shadow: var(--shadow); }
+  .dose-table tbody tr.overdue td{ background: var(--amber-bg); }
+  .dose-table tbody td:first-child{ border-radius:14px 0 0 14px; padding-left:14px; }
+  .dose-table tbody td:last-child{ border-radius:0 14px 14px 0; padding-right:10px; }
+  .dose-table .td-nome{ font-weight:600; color: var(--ink); }
+  .dose-table .td-horario{ font-family: var(--font-mono); font-size:12px; color: var(--ink-faint); }
+  .dose-table tr.overdue .td-horario{ color: var(--amber); font-weight:500; }
+  .dose-table .td-check{ text-align:center; }
+  .dose-check-sm{
+    width:34px; height:34px; border-radius:50%; border:none; cursor:pointer; position:relative;
+    background: radial-gradient(circle at 32% 28%, #F2F6F4, #D7E2DC 60%, #C4D3CB 100%);
+    box-shadow: inset 0 0 0 2px #FFFFFFAA, 0 1px 2px rgba(0,0,0,0.12);
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+  }
+  .dose-check-sm:active{ transform: scale(0.85); }
+  .dose-check-sm .chk{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px; font-weight:700; opacity:0; }
+  .dose-list{ display:flex; flex-direction:column; gap:10px; }
+  .dose-item{
+    background: var(--bg-elev);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    box-shadow: var(--shadow);
+    border: 1px solid transparent;
+  }
+  .dose-item.overdue{ border-color:#E6BE8F; background: linear-gradient(0deg, var(--bg-elev), var(--bg-elev)), var(--amber-bg); }
+  .dose-check{
+    flex: 0 0 auto;
+    width:46px;height:46px;
+    border-radius:50%;
+    border:none;
+    cursor:pointer;
+    position:relative;
+    background: radial-gradient(circle at 32% 28%, #F2F6F4, #D7E2DC 60%, #C4D3CB 100%);
+    box-shadow: inset 0 0 0 2px #FFFFFFAA, 0 1px 2px rgba(0,0,0,0.12);
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), background .2s ease;
+  }
+  .dose-check:active{ transform: scale(0.88); }
+  .dose-check.checked{
+    background: radial-gradient(circle at 32% 28%, #6FA189, var(--taken) 65%, #3E6650 100%);
+  }
+  .dose-check .chk{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:19px; font-weight:700;
+    opacity:0; transform: scale(0.5);
+    transition: opacity .15s ease, transform .18s cubic-bezier(.34,1.56,.64,1);
+  }
+  .dose-check.checked .chk{ opacity:1; transform: scale(1); }
+  .dose-info{ flex:1; min-width:0; }
+  .dose-name{ font-weight:600; font-size:14.5px; color:var(--ink); }
+  .dose-meta{ font-family: var(--font-mono); font-size:12px; color: var(--ink-faint); margin-top:2px; }
+  .dose-meta.overdue-text{ color: var(--amber); font-weight:500; }
+
+  details.completed-wrap{ margin-top:18px; }
+  details.completed-wrap summary{
+    font-size:13px; font-weight:600; color: var(--ink-soft);
+    cursor:pointer; list-style:none; padding:4px 0;
+  }
+  details.completed-wrap summary::-webkit-details-marker{ display:none; }
+  .completed-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 4px; border-bottom:1px solid var(--line);
+    font-size:13.5px; color: var(--ink-soft);
+  }
+  .completed-item .cname{ text-decoration: line-through; color: var(--ink-faint); }
+  .link-btn{
+    background:none; border:none; color: var(--primary); font-weight:600;
+    font-size:12.5px; cursor:pointer; padding:4px 6px;
+  }
+
+  .cal-nav{ display:flex; align-items:center; justify-content:space-between; margin: 6px 0 14px; }
+  .cal-nav h2{ font-family: var(--font-display); font-size:18px; margin:0; text-transform:capitalize; color:var(--primary-dark); }
+  .cal-nav button{
+    background: var(--bg-elev); border:1px solid var(--line); border-radius:50%;
+    width:34px; height:34px; font-size:15px; cursor:pointer; color:var(--primary-dark);
+  }
+  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:6px; }
+  .cal-weekdays span{ font-family: var(--font-mono); font-size:10.5px; color:var(--ink-faint); }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .cal-cell{
+    aspect-ratio:1; border-radius:10px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; font-size:13px; font-weight:500;
+    cursor:pointer; position:relative; border:1px solid transparent; color: var(--ink);
+    background: var(--bg-elev);
+  }
+  .cal-cell.blank{ visibility:hidden; cursor:default; }
+  .cal-cell.futuro{ background: var(--bg-elev); color: var(--ink-faint); }
+  .cal-cell.sem{ background:#F2F5F3; color: var(--ink-faint); }
+  .cal-cell.completo{ background: var(--taken-bg); color: var(--primary-dark); }
+  .cal-cell.parcial{ background: var(--amber-bg); color:#7A4E17; }
+  .cal-cell.faltou{ background: var(--red-bg); color:#7A3423; }
+  .cal-cell.is-today{ border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-soft); font-weight:700; }
+  .cal-cell.is-selected{ outline:2px solid var(--primary-dark); }
+  .cal-dot{ width:4px; height:4px; border-radius:50%; background: var(--amber); position:absolute; bottom:5px; }
+  .cal-legend{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+  .cal-legend span{ font-size:11px; color: var(--ink-soft); display:flex; align-items:center; gap:5px; }
+  .cal-legend i{ width:9px; height:9px; border-radius:3px; display:inline-block; }
+  .day-detail{
+    margin-top:16px; background: var(--bg-elev); border-radius: var(--radius-md);
+    padding:14px 16px; box-shadow: var(--shadow);
+  }
+  .day-detail h3{ font-family: var(--font-display); font-size:15px; margin:0 0 4px; text-transform:capitalize; }
+  .day-detail .dd-holiday{ font-size:12px; color:var(--amber); font-weight:600; margin-bottom:8px; }
+  .dd-item{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .dd-item:last-child{ border-bottom:none; }
+  .dd-check{ width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line); background:#fff; cursor:pointer; flex:0 0 auto; }
+  .dd-check.on{ background: var(--taken); border-color: var(--taken); }
+
+  .med-card{
+    background: var(--bg-elev); border-radius: var(--radius-md); padding:14px 16px;
+    box-shadow: var(--shadow); margin-bottom:12px;
+  }
+  .med-card.paused{ opacity:0.55; }
+  .med-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .med-name{ font-family: var(--font-display); font-weight:600; font-size:16px; color:var(--ink); }
+  .med-freq{ font-family: var(--font-mono); font-size:12px; color: var(--ink-soft); margin-top:4px; line-height:1.5; }
+  .med-stock{ font-size:11.5px; font-weight:600; padding:3px 8px; border-radius:20px; background: var(--primary-soft); color:var(--primary-dark); white-space:nowrap; }
+  .med-stock.low{ background: var(--red-bg); color: var(--red); }
+  .med-actions{ display:flex; gap:8px; margin-top:12px; }
+
+  .modal-overlay{
+    position:fixed; inset:0; background: rgba(20,34,32,0.42);
+    display:flex; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  @media (min-width:560px){ .modal-overlay{ align-items:center; } }
+  .modal{
+    background: var(--bg-elev); width:100%; max-width:480px;
+    border-radius: 24px 24px 0 0; padding: 20px 20px 24px; max-height:88vh; overflow-y:auto;
+  }
+  @media (min-width:560px){ .modal{ border-radius:24px; } }
+  .modal h2{ font-family: var(--font-display); font-size:19px; margin:0 0 16px; color:var(--primary-dark); }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; color: var(--ink-soft); margin-bottom:6px; }
+  .field input[type=text], .field input[type=number], .field input[type=date]{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--line);
+    font-family: var(--font-body); font-size:14px; background:#FBFCFB;
+  }
+  .field input[type=time]{
+    padding:9px 10px; border-radius:10px; border:1px solid var(--line); font-family: var(--font-mono); font-size:13px; background:#FBFCFB;
+  }
+  .freq-options{ display:flex; flex-direction:column; gap:8px; }
+  .freq-option{ display:flex; align-items:center; gap:9px; font-size:13.5px; line-height:1.3; padding:9px 10px; border:1px solid var(--line); border-radius:10px; cursor:pointer; }
+  .freq-option input[type="radio"]{
+    appearance:none; -webkit-appearance:none;
+    margin:0; width:18px; height:18px; flex:0 0 auto;
+    border:1.5px solid var(--line); border-radius:50%;
+    background:#fff; position:relative; cursor:pointer;
+  }
+  .freq-option input[type="radio"]:checked{ border-color: var(--primary); }
+  .freq-option input[type="radio"]:checked::after{
+    content:''; position:absolute; top:50%; left:50%;
+    width:9px; height:9px; border-radius:50%; background: var(--primary);
+    transform: translate(-50%,-50%);
+  }
+  .weekday-toggles{ display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+  .weekday-toggle{
+    width:36px; height:36px; border-radius:50%; border:1px solid var(--line); background:#fff;
+    font-family: var(--font-mono); font-size:11.5px; cursor:pointer; color: var(--ink-soft);
+  }
+  .weekday-toggle.active{ background: var(--primary); color:#fff; border-color:var(--primary); }
+  .horarios-grid{ display:flex; flex-wrap:wrap; gap:8px; }
+  .horario-slot{ display:flex; flex-direction:column; gap:4px; }
+  .horario-slot span{ font-family: var(--font-mono); font-size:10.5px; color:var(--ink-faint); }
+  .time-select-group{ display:flex; align-items:center; gap:3px; }
+  .time-select-group select{
+    font-family: var(--font-mono); font-size:13px; padding:9px 4px; border-radius:10px;
+    border:1px solid var(--line); background:#FBFCFB; color: var(--ink); text-align:center;
+  }
+  .time-colon{ font-family: var(--font-mono); font-weight:600; color: var(--ink-faint); }
+  .two-col{ display:flex; gap:10px; }
+  .stepper{ display:flex; align-items:center; gap:16px; padding-top:2px; }
+  .stepper-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:#fff;
+    font-size:18px; font-weight:600; color: var(--primary-dark); cursor:pointer; line-height:1;
+  }
+  .stepper-btn:active{ transform: scale(0.9); }
+  .stepper-value{ font-family: var(--font-mono); font-size:17px; font-weight:600; min-width:14px; text-align:center; color: var(--ink); }
+  .two-col .field{ flex:1; }
+  .form-errors{ background: var(--red-bg); color: var(--red); border-radius:10px; padding:10px 12px; font-size:12.5px; margin-bottom:14px; }
+  .modal-footer{ display:flex; gap:10px; margin-top:6px; }
+  .modal-footer .btn{ flex:1; }
+  .hint-text{ font-size:11.5px; color: var(--ink-faint); margin-top:6px; line-height:1.5; }
+
+  .confirm-modal{ max-width:340px; text-align:center; padding:24px 22px; border-radius:20px; }
+  .confirm-modal p{ font-size:14px; color: var(--ink); line-height:1.6; margin: 8px 0 18px; }
+  .confirm-modal h2{ font-size:16px; }
+
+  .tabbar{
+    position:fixed; bottom:0; left:0; right:0;
+    display:flex; justify-content:center;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(10px);
+    border-top:1px solid var(--line);
+    z-index:30;
+  }
+  .tabbar-inner{ max-width:520px; width:100%; display:flex; }
+  .tab-btn{
+    flex:1; background:none; border:none; padding: 13px 4px 16px; cursor:pointer;
+    font-family: var(--font-body); font-size:11.5px; font-weight:600; color: var(--ink-faint);
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+  }
+  .tab-btn .tab-icon{ font-size:18px; }
+  .tab-btn.active{ color: var(--primary); }
+
+  .settings-row{ display:flex; flex-direction:column; gap:8px; margin-top:22px; padding-top:14px; border-top:1px solid var(--line); }
+  .settings-row summary{ font-size:12.5px; font-weight:600; color: var(--ink-faint); cursor:pointer; list-style:none; margin-bottom:10px; }
+  .settings-row summary::-webkit-details-marker{ display:none; }
+  .settings-row summary::before{ content:'⚙ '; }
+  .settings-row .btn{ font-size:12.5px; padding:9px 14px; }
+
+  .toast-root{ position:fixed; bottom:88px; left:0; right:0; display:flex; justify-content:center; z-index:80; pointer-events:none; }
+  .toast{
+    background: var(--primary-dark); color:#fff; font-size:13px; font-weight:500;
+    padding:11px 18px; border-radius:30px; box-shadow:0 6px 20px rgba(0,0,0,0.2);
+    opacity:0; transform: translateY(8px); transition: opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{ opacity:1; transform: translateY(0); }
+
+  .loading-state{ text-align:center; padding:80px 20px; color: var(--ink-faint); font-size:13px; }
+
+  .auth-screen{
+    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px;
+  }
+  .auth-card{
+    background: var(--bg-elev); border-radius: var(--radius-lg); box-shadow: var(--shadow);
+    padding: 28px 24px; width:100%; max-width:380px;
+  }
+  .auth-tabs{ display:flex; gap:6px; background:#EEF3EF; border-radius:12px; padding:4px; margin-bottom:20px; }
+  .auth-tab{ flex:1; border:none; background:none; padding:9px 0; border-radius:9px; font-family: var(--font-body); font-size:13px; font-weight:600; color: var(--ink-soft); cursor:pointer; }
+  .auth-tab.active{ background:#fff; color: var(--primary-dark); box-shadow: var(--shadow); }
+  .auth-card .field input{ width:100%; }
+</style>
+</head>
+<body>
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="brand" style="justify-content:center;margin-bottom:20px;">
+      <img src="logo-full.png" alt="MedControl" class="brand-logo">
+    </div>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-authtab="entrar">Entrar</button>
+      <button type="button" class="auth-tab" data-authtab="criar">Criar conta</button>
+    </div>
+    <div id="authError" class="form-errors" style="display:none;"></div>
+    <div class="field"><label>E-mail</label><input type="email" id="authEmail" autocomplete="email"></div>
+    <div class="field"><label>Senha</label><input type="password" id="authPassword" autocomplete="current-password"></div>
+    <button type="button" class="btn btn-primary btn-block" id="authSubmitBtn">Entrar</button>
+    <button type="button" class="link-btn" id="authForgotBtn" style="display:block;margin:12px auto 0;">Esqueci minha senha</button>
+  </div>
+</div>
+<div id="app-root" style="display:none;">
+  <header class="topbar">
+    <div class="brand-row">
+      <div class="brand">
+        <img src="logo-full.png" alt="MedControl" class="brand-logo">
+      </div>
+      <button type="button" class="logout-btn" data-action="logout" aria-label="Sair da conta">Sair</button>
+    </div>
+    <div class="today-card">
+      <div>
+        <div class="today-date" id="todayDate">carregando...</div>
+        <div class="today-sub" id="todaySub"></div>
+      </div>
+      <div id="holidaySlot"></div>
+    </div>
+    <div id="installBanner" class="install-banner" style="display:none;">
+      <span class="install-text"></span>
+      <div class="install-banner-actions">
+        <button type="button" class="btn btn-primary btn-sm" data-action="install-app">Instalar</button>
+        <button type="button" class="install-dismiss" data-action="dismiss-install" aria-label="Fechar">&#10005;</button>
+      </div>
+    </div>
+  </header>
+  <main id="main"><div class="loading-state">Carregando seus dados...</div></main>
+  <nav class="tabbar">
+    <div class="tabbar-inner">
+      <button class="tab-btn active" data-action="set-tab" data-tab="hoje"><span class="tab-icon">&#128138;</span>Hoje</button>
+      <button class="tab-btn" data-action="set-tab" data-tab="calendario"><span class="tab-icon">&#128197;</span>Calendário</button>
+      <button class="tab-btn" data-action="set-tab" data-tab="remedios"><span class="tab-icon">&#128203;</span>Remédios</button>
+    </div>
+  </nav>
+</div>
+<div id="modalRoot"></div>
+<div class="toast-root" id="toastRoot"></div>
+<input type="file" id="importFileInput" accept="application/json" style="display:none">
+
+<script type="module">
+  // ==================================================================
+  // CONFIGURAÇÃO DO FIREBASE — substitua pelos dados do SEU projeto.
+  // Firebase Console > Configurações do projeto > Seus apps > app Web.
+  // Esses valores não são secretos (não é senha nem chave de API
+  // sensível): quem protege os dados são as Regras de Segurança do
+  // Firestore, configuradas separadamente no console.
+  // ==================================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+    createUserWithEmailAndPassword, signOut, sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBHmAIcGOeBm3U5XDGnUMegcXvlKCHfU6E",
+    authDomain: "medcontrolapp-7f445.firebaseapp.com",
+    projectId: "medcontrolapp-7f445",
+    storageBucket: "medcontrolapp-7f445.firebasestorage.app",
+    messagingSenderId: "778471569666",
+    appId: "1:778471569666:web:a8ae8e8e5fcf6386df6a1b"
+  };
+  const firebaseApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseApp);
+  const db = getFirestore(firebaseApp);
+
+(function(){
+  "use strict";
+
+  /* ---------- Constantes ---------- */
+  var WEEKDAYS_LONG = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  var WEEKDAYS_SHORT = ['D','S','T','Q','Q','S','S'];
+  var WEEKDAYS_ABBR = ['dom','seg','ter','qua','qui','sex','sáb'];
+  var MONTHS = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  /* ---------- Utilidades de data (fuso America/Sao_Paulo) ---------- */
+  function todayStrBR(){
+    var fmt = new Intl.DateTimeFormat('en-CA', { timeZone:'America/Sao_Paulo', year:'numeric', month:'2-digit', day:'2-digit' });
+    return fmt.format(new Date());
+  }
+  function nowTimeBR(){
+    var fmt = new Intl.DateTimeFormat('en-GB', { timeZone:'America/Sao_Paulo', hour:'2-digit', minute:'2-digit', hour12:false });
+    return fmt.format(new Date());
+  }
+  function dateStrToDate(str){
+    var parts = str.split('-').map(Number);
+    return new Date(parts[0], parts[1]-1, parts[2]);
+  }
+  function dateToStr(d){
+    var y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+day;
+  }
+  function weekdayOf(str){ return dateStrToDate(str).getDay(); }
+  function formatDateLong(str){
+    var d = dateStrToDate(str);
+    var s = WEEKDAYS_LONG[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTHS[d.getMonth()] + ' de ' + d.getFullYear();
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  function formatDateShort(str){
+    var d = dateStrToDate(str);
+    return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+  }
+
+  /* ---------- Feriados nacionais (fixos + móveis via Páscoa) ---------- */
+  var holidayCache = {};
+  function easterDate(year){
+    var a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4;
+    var f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30;
+    var i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
+    var month=Math.floor((h+l-7*m+114)/31), day=((h+l-7*m+114)%31)+1;
+    return new Date(year, month-1, day);
+  }
+  function addDaysToDate(date,n){ var d=new Date(date); d.setDate(d.getDate()+n); return d; }
+  function nationalHolidays(year){
+    var easter = easterDate(year);
+    var list = [
+      {date:new Date(year,0,1), name:'Confraternização Universal'},
+      {date:new Date(year,3,21), name:'Tiradentes'},
+      {date:new Date(year,4,1), name:'Dia do Trabalho'},
+      {date:new Date(year,8,7), name:'Independência do Brasil'},
+      {date:new Date(year,9,12), name:'Nossa Senhora Aparecida'},
+      {date:new Date(year,10,2), name:'Finados'},
+      {date:new Date(year,10,15), name:'Proclamação da República'},
+      {date:new Date(year,10,20), name:'Consciência Negra'},
+      {date:new Date(year,11,25), name:'Natal'},
+      {date:addDaysToDate(easter,-48), name:'Carnaval'},
+      {date:addDaysToDate(easter,-47), name:'Carnaval'},
+      {date:addDaysToDate(easter,-2), name:'Sexta-feira Santa'},
+      {date:addDaysToDate(easter,60), name:'Corpus Christi'}
+    ];
+    var map = {};
+    list.forEach(function(h){ map[dateToStr(h.date)] = h.name; });
+    return map;
+  }
+  function getHolidayName(dateStr){
+    var year = parseInt(dateStr.slice(0,4), 10);
+    if(!holidayCache[year]) holidayCache[year] = nationalHolidays(year);
+    return holidayCache[year][dateStr] || null;
+  }
+
+  /* ---------- Helpers gerais ---------- */
+  function uid(){ return 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function escapeHtml(str){
+    return String(str==null ? '' : str).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function clamp(n,min,max){ return Math.min(max, Math.max(min, n)); }
+
+  function suggestTimes(n){
+    var start = 7, step = Math.max(1, Math.floor(24/n)), out = [];
+    for(var i=0;i<n;i++){ out.push(String((start+i*step)%24).padStart(2,'0') + ':00'); }
+    return out;
+  }
+  function resizeHorarios(oldArr, n){
+    var suggestions = suggestTimes(n), out = [];
+    for(var i=0;i<n;i++){ out.push(oldArr[i] ? oldArr[i] : suggestions[i]); }
+    return out;
+  }
+  function buildHourOptions(selected){
+    var out = '<option value="">--</option>';
+    for(var h=0; h<24; h++){
+      var v = String(h).padStart(2,'0');
+      out += '<option value="' + v + '"' + (v===selected ? ' selected' : '') + '>' + v + '</option>';
+    }
+    return out;
+  }
+  function buildMinuteOptions(selected){
+    var out = '<option value="">--</option>';
+    for(var m=0; m<60; m++){
+      var v = String(m).padStart(2,'0');
+      out += '<option value="' + v + '"' + (v===selected ? ' selected' : '') + '>' + v + '</option>';
+    }
+    return out;
+  }
+
+  /* ---------- Persistência (Firestore, por usuário) ---------- */
+  async function loadMedications(){
+    try{
+      var snap = await getDoc(doc(db, 'users', currentUser.uid, 'data', 'medications'));
+      return snap.exists() ? (snap.data().list || []) : [];
+    }catch(e){ console.error(e); return []; }
+  }
+  async function saveMedications(meds){
+    try{
+      await setDoc(doc(db, 'users', currentUser.uid, 'data', 'medications'), { list: meds });
+      return true;
+    }catch(e){ console.error(e); showToast('Não consegui salvar. Tente de novo.'); return false; }
+  }
+  async function loadCheckins(){
+    try{
+      var snap = await getDoc(doc(db, 'users', currentUser.uid, 'data', 'checkins'));
+      return snap.exists() ? (snap.data().map || {}) : {};
+    }catch(e){ console.error(e); return {}; }
+  }
+  async function saveCheckins(checkins){
+    try{
+      await setDoc(doc(db, 'users', currentUser.uid, 'data', 'checkins'), { map: checkins });
+      return true;
+    }catch(e){ console.error(e); showToast('Não consegui salvar. Tente de novo.'); return false; }
+  }
+
+  /* ---------- Estado ---------- */
+  var state = {
+    meds: [],
+    checkins: {},
+    tab: 'hoje',
+    calYear: null,
+    calMonth: null,
+    selectedCalDay: null,
+    loaded: false
+  };
+  var modalForm = null;
+  var pendingConfirm = null;
+  var currentUser = null;
+  var refreshTimer = null;
+  var deferredInstallPrompt = null;
+
+  /* ---------- Regras de frequência ---------- */
+  function isMedActiveOnDate(med, dateStr){
+    if(med.ativo === false) return false;
+    if(dateStr < med.dataInicio) return false;
+    if(med.dataFim && dateStr > med.dataFim) return false;
+    if(med.frequencia === 'diario') return true;
+    if(med.frequencia === 'semanal') return med.diasSemana.indexOf(weekdayOf(dateStr)) !== -1;
+    if(med.frequencia === 'alternado'){
+      var start = dateStrToDate(med.dataInicio), cur = dateStrToDate(dateStr);
+      var diff = Math.round((cur - start) / 86400000);
+      return diff % 2 === 0;
+    }
+    return false;
+  }
+  function dosesForDate(meds, dateStr){
+    var result = [];
+    meds.forEach(function(med){
+      if(isMedActiveOnDate(med, dateStr)){
+        for(var i=0;i<med.vezesPorDia;i++){ result.push({ medId: med.id, doseIndex: i, med: med }); }
+      }
+    });
+    return result;
+  }
+  function doseKey(medId, idx){ return medId + '-' + idx; }
+  function describeFrequencia(med){
+    var base;
+    if(med.frequencia === 'diario') base = 'Todos os dias';
+    else if(med.frequencia === 'alternado') base = 'Dia sim, dia não · desde ' + formatDateShort(med.dataInicio);
+    else {
+      var dias = med.diasSemana.slice().sort().map(function(d){ return WEEKDAYS_ABBR[d]; }).join(', ');
+      base = 'Semanal · ' + dias;
+    }
+    var horarios = (med.horarios || []).filter(Boolean);
+    var vezes = med.vezesPorDia + 'x ao dia';
+    if(horarios.length) vezes += ' (' + horarios.join(', ') + ')';
+    if(med.dataFim) vezes += ' · até ' + formatDateShort(med.dataFim);
+    return base + ' · ' + vezes;
+  }
+
+  /* ---------- Render raiz ---------- */
+  function render(){
+    renderHeader();
+    if(state.tab === 'hoje') renderHoje();
+    else if(state.tab === 'calendario') renderCalendario();
+    else renderRemedios();
+    document.querySelectorAll('.tab-btn').forEach(function(btn){
+      btn.classList.toggle('active', btn.dataset.tab === state.tab);
+    });
+  }
+
+  function renderHeader(){
+    var t = todayStrBR();
+    document.getElementById('todayDate').textContent = formatDateLong(t);
+    document.getElementById('todaySub').textContent = nowTimeBR() + ' · horário de Brasília';
+    var holiday = getHolidayName(t);
+    document.getElementById('holidaySlot').innerHTML = holiday
+      ? '<span class="holiday-badge">Feriado: ' + escapeHtml(holiday) + '</span>' : '';
+  }
+
+  /* ---------- Aba Hoje ---------- */
+  function renderHoje(){
+    var main = document.getElementById('main');
+    if(state.meds.length === 0){
+      main.innerHTML =
+        '<div class="empty-state">' +
+          '<span class="pill-icon">&#128138;</span>' +
+          '<p>Nenhum remédio cadastrado ainda.<br>Cadastre o primeiro para começar a organizar seus horários.</p>' +
+          '<button class="btn btn-primary" data-action="goto-remedios">Cadastrar remédio</button>' +
+        '</div>';
+      return;
+    }
+    var t = todayStrBR();
+    var doses = dosesForDate(state.meds, t);
+    var todayChecks = state.checkins[t] || {};
+    var pending = [], done = [];
+    doses.forEach(function(d){
+      if(todayChecks[doseKey(d.medId, d.doseIndex)]) done.push(d); else pending.push(d);
+    });
+    pending.sort(function(a,b){
+      var ta = (a.med.horarios && a.med.horarios[a.doseIndex]) || '99:99';
+      var tb = (b.med.horarios && b.med.horarios[b.doseIndex]) || '99:99';
+      return ta.localeCompare(tb);
+    });
+
+    var lowStock = state.meds.filter(function(m){
+      return m.ativo !== false && typeof m.estoqueAtual === 'number' && typeof m.estoqueAlertaMinimo === 'number' && m.estoqueAtual <= m.estoqueAlertaMinimo;
+    });
+
+    var html = '';
+    if(lowStock.length){
+      html += '<div class="stock-alert">&#9888;&#65039; Estoque baixo: ' +
+        lowStock.map(function(m){ return '<b>' + escapeHtml(m.nome) + '</b> (restam ' + m.estoqueAtual + ')'; }).join(', ') +
+        '</div>';
+    }
+
+    if(doses.length === 0){
+      html += '<div class="success-banner">Nenhum remédio programado para hoje.</div>';
+    } else if(pending.length === 0){
+      html += '<div class="success-banner">Tudo certo por hoje. Todas as doses já foram tomadas.</div>';
+    } else {
+      html += '<div class="section-label">Pendente agora · ' + pending.length + '</div>';
+      html += '<table class="dose-table"><thead><tr><th>Remédio</th><th>Horário</th><th class="col-check">Tomado</th></tr></thead><tbody>';
+      var now = nowTimeBR();
+      pending.forEach(function(d){
+        var horario = d.med.horarios && d.med.horarios[d.doseIndex];
+        var overdue = horario && horario < now;
+        var label = horario ? horario : ('Dose ' + (d.doseIndex+1) + ' de ' + d.med.vezesPorDia);
+        html += '<tr class="' + (overdue ? 'overdue' : '') + '">' +
+          '<td class="td-nome">' + escapeHtml(d.med.nome) + '</td>' +
+          '<td class="td-horario">' + escapeHtml(label) + (overdue ? ' · atrasado' : '') + '</td>' +
+          '<td class="td-check"><button class="dose-check-sm" data-action="toggle-dose" data-date="' + t + '" data-med="' + d.medId + '" data-idx="' + d.doseIndex + '"><span class="chk">&#10003;</span></button></td>' +
+        '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    if(done.length){
+      html += '<details class="completed-wrap"><summary>Já tomado hoje (' + done.length + ')</summary>';
+      done.forEach(function(d){
+        var horario = d.med.horarios && d.med.horarios[d.doseIndex];
+        var label = horario ? horario : ('Dose ' + (d.doseIndex+1) + ' de ' + d.med.vezesPorDia);
+        html += '<div class="completed-item">' +
+          '<span class="cname">' + escapeHtml(d.med.nome) + ' · ' + escapeHtml(label) + '</span>' +
+          '<button class="link-btn" data-action="toggle-dose" data-date="' + t + '" data-med="' + d.medId + '" data-idx="' + d.doseIndex + '">Desfazer</button>' +
+        '</div>';
+      });
+      html += '</details>';
+    }
+    main.innerHTML = html;
+  }
+
+  /* ---------- Aba Calendário ---------- */
+  function renderCalendario(){
+    var main = document.getElementById('main');
+    var y = state.calYear, m = state.calMonth;
+    var firstDow = new Date(y, m, 1).getDay();
+    var daysInMonth = new Date(y, m+1, 0).getDate();
+    var todayStr = todayStrBR();
+
+    var html = '<div class="cal-nav">' +
+      '<button data-action="cal-prev">&#8592;</button>' +
+      '<h2>' + MONTHS[m] + ' de ' + y + '</h2>' +
+      '<button data-action="cal-next">&#8594;</button>' +
+    '</div>';
+    html += '<div class="cal-weekdays">' + WEEKDAYS_ABBR.map(function(w){ return '<span>' + w + '</span>'; }).join('') + '</div>';
+    html += '<div class="cal-grid">';
+    for(var b=0;b<firstDow;b++){ html += '<div class="cal-cell blank"></div>'; }
+    for(var day=1; day<=daysInMonth; day++){
+      var dateStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+      var doses = dosesForDate(state.meds, dateStr);
+      var total = doses.length;
+      var checksForDay = state.checkins[dateStr] || {};
+      var completed = doses.filter(function(d){ return checksForDay[doseKey(d.medId, d.doseIndex)]; }).length;
+      var status;
+      if(dateStr > todayStr) status = 'futuro';
+      else if(total === 0) status = 'sem';
+      else if(completed === total) status = 'completo';
+      else if(completed > 0) status = 'parcial';
+      else status = 'faltou';
+      var isToday = dateStr === todayStr;
+      var isSelected = dateStr === state.selectedCalDay;
+      var holiday = getHolidayName(dateStr);
+      html += '<div class="cal-cell ' + status + (isToday ? ' is-today' : '') + (isSelected ? ' is-selected' : '') + '" data-action="cal-select-day" data-date="' + dateStr + '">' +
+        day + (holiday ? '<span class="cal-dot"></span>' : '') +
+      '</div>';
+    }
+    html += '</div>';
+    html += '<div class="cal-legend">' +
+      '<span><i style="background:var(--taken-bg)"></i>Completo</span>' +
+      '<span><i style="background:var(--amber-bg)"></i>Parcial</span>' +
+      '<span><i style="background:var(--red-bg)"></i>Faltou</span>' +
+      '<span><i style="background:#F2F5F3"></i>Sem remédio</span>' +
+      '<span><i style="background:var(--amber)"></i>Feriado</span>' +
+    '</div>';
+
+    if(state.selectedCalDay){
+      var d2 = state.selectedCalDay;
+      var doses2 = dosesForDate(state.meds, d2);
+      var checks2 = state.checkins[d2] || {};
+      var holiday2 = getHolidayName(d2);
+      html += '<div class="day-detail"><h3>' + formatDateLong(d2) + '</h3>';
+      if(holiday2) html += '<div class="dd-holiday">Feriado nacional: ' + escapeHtml(holiday2) + '</div>';
+      if(doses2.length === 0){
+        html += '<p class="hint-text">Nenhum remédio programado para este dia.</p>';
+      } else {
+        doses2.forEach(function(d){
+          var on = !!checks2[doseKey(d.medId, d.doseIndex)];
+          var horario = d.med.horarios && d.med.horarios[d.doseIndex];
+          var label = horario ? horario : ('Dose ' + (d.doseIndex+1));
+          html += '<div class="dd-item"><span>' + escapeHtml(d.med.nome) + ' · ' + escapeHtml(label) + '</span>' +
+            '<button class="dd-check' + (on ? ' on' : '') + '" data-action="toggle-dose" data-date="' + d2 + '" data-med="' + d.medId + '" data-idx="' + d.doseIndex + '"></button></div>';
+        });
+      }
+      html += '</div>';
+    }
+    main.innerHTML = html;
+  }
+
+  /* ---------- Aba Remédios ---------- */
+  function renderRemedios(){
+    var main = document.getElementById('main');
+    var html = '<button class="btn btn-primary btn-block" data-action="open-med-form">+ Novo remédio</button>';
+    if(state.meds.length === 0){
+      html += '<div class="empty-state"><p>Você ainda não cadastrou nenhum remédio.</p></div>';
+    } else {
+      html += '<div class="section-label">Cadastrados · ' + state.meds.length + '</div>';
+      var todayForList = todayStrBR();
+      state.meds.forEach(function(med){
+        var lowStock = typeof med.estoqueAtual === 'number' && typeof med.estoqueAlertaMinimo === 'number' && med.estoqueAtual <= med.estoqueAlertaMinimo;
+        var ended = med.dataFim && todayForList > med.dataFim;
+        var statusTag = med.ativo===false ? ' (pausado)' : (ended ? ' (encerrado em ' + formatDateShort(med.dataFim) + ')' : '');
+        html += '<div class="med-card' + (med.ativo===false || ended ? ' paused' : '') + '">' +
+          '<div class="med-card-top">' +
+            '<div><div class="med-name">' + escapeHtml(med.nome) + statusTag + '</div>' +
+            '<div class="med-freq">' + escapeHtml(describeFrequencia(med)) + '</div></div>' +
+            (typeof med.estoqueAtual === 'number' ? '<span class="med-stock' + (lowStock ? ' low' : '') + '">restam ' + med.estoqueAtual + '</span>' : '') +
+          '</div>' +
+          '<div class="med-actions">' +
+            '<button class="btn btn-ghost btn-sm" data-action="open-med-form" data-id="' + med.id + '">Editar</button>' +
+            '<button class="btn btn-ghost btn-sm" data-action="toggle-active-med" data-id="' + med.id + '">' + (med.ativo===false ? 'Reativar' : 'Pausar') + '</button>' +
+            '<button class="btn btn-danger btn-sm" data-action="request-delete-med" data-id="' + med.id + '">Excluir</button>' +
+          '</div>' +
+        '</div>';
+      });
+    }
+    html += '<details class="settings-row"><summary>Configurações</summary>' +
+      '<p class="hint-text" style="margin:-4px 0 4px;">Conectado como ' + escapeHtml(currentUser && currentUser.email || '') + '</p>' +
+      '<button class="btn btn-ghost" data-action="export-backup">Exportar backup (.json)</button>' +
+      '<button class="btn btn-ghost" data-action="trigger-import">Importar backup</button>' +
+      '<button class="btn btn-danger" data-action="request-wipe">Apagar todos os dados</button>' +
+      '<button class="btn btn-ghost" data-action="logout">Sair da conta</button>' +
+    '</details>';
+    main.innerHTML = html;
+  }
+
+  /* ---------- Modal: formulário de remédio ---------- */
+  function openMedForm(id){
+    var existing = id ? state.meds.find(function(m){ return m.id === id; }) : null;
+    modalForm = existing ? {
+      id: existing.id,
+      nome: existing.nome,
+      vezesPorDia: existing.vezesPorDia,
+      horarios: existing.horarios.slice(),
+      frequencia: existing.frequencia,
+      diasSemana: existing.diasSemana.slice(),
+      dataInicio: existing.dataInicio,
+      dataFim: existing.dataFim || '',
+      estoqueAtual: existing.estoqueAtual != null ? existing.estoqueAtual : '',
+      estoqueAlertaMinimo: existing.estoqueAlertaMinimo != null ? existing.estoqueAlertaMinimo : '',
+      ativo: existing.ativo
+    } : {
+      id: null, nome: '', vezesPorDia: 1, horarios: suggestTimes(1),
+      frequencia: 'diario', diasSemana: [], dataInicio: todayStrBR(), dataFim: '',
+      estoqueAtual: '', estoqueAlertaMinimo: '', ativo: true
+    };
+    renderMedModal([]);
+  }
+
+  function renderMedModal(errors){
+    var f = modalForm;
+    var isEdit = !!f.id;
+    var html = '<div class="modal-overlay" data-action="overlay-close"><div class="modal" data-stop="1">' +
+      '<h2>' + (isEdit ? 'Editar remédio' : 'Novo remédio') + '</h2>';
+    if(errors && errors.length){
+      html += '<div class="form-errors">' + errors.map(escapeHtml).join('<br>') + '</div>';
+    }
+    html += '<div class="field"><label>Nome do remédio</label>' +
+      '<input type="text" data-field="nome" value="' + escapeHtml(f.nome) + '" placeholder="Ex: Losartana"></div>';
+
+    html += '<div class="two-col">' +
+      '<div class="field"><label>Vezes ao dia</label>' +
+      '<div class="stepper">' +
+        '<button type="button" class="stepper-btn" data-action="vezes-dec" aria-label="Diminuir">&#8722;</button>' +
+        '<span class="stepper-value">' + f.vezesPorDia + '</span>' +
+        '<button type="button" class="stepper-btn" data-action="vezes-inc" aria-label="Aumentar">&#43;</button>' +
+      '</div></div>' +
+      '<div class="field"><label>Data de início</label>' +
+      '<input type="date" data-field="dataInicio" value="' + f.dataInicio + '"></div>' +
+    '</div>';
+
+    html += '<div class="field"><label>Data de término (opcional)</label>' +
+      '<input type="date" data-field="dataFim" value="' + (f.dataFim || '') + '"></div>';
+
+    html += '<div class="field"><label>Horários (opcional)</label><div class="horarios-grid">';
+    for(var i=0;i<f.vezesPorDia;i++){
+      var hv = f.horarios[i] || '';
+      var hParts = hv.split(':');
+      var hh = hParts[0] || '';
+      var mm = hParts[1] || '';
+      html += '<div class="horario-slot"><span>Dose ' + (i+1) + '</span>' +
+        '<div class="time-select-group">' +
+          '<select data-action="horario-hour" data-idx="' + i + '">' + buildHourOptions(hh) + '</select>' +
+          '<span class="time-colon">:</span>' +
+          '<select data-action="horario-min" data-idx="' + i + '">' + buildMinuteOptions(mm) + '</select>' +
+        '</div></div>';
+    }
+    html += '</div></div>';
+
+    html += '<div class="field"><label>Frequência</label><div class="freq-options">' +
+      ['diario','alternado','semanal'].map(function(opt){
+        var labels = { diario: 'Todos os dias', alternado: 'Dia sim, dia não', semanal: 'Semanal (escolher dias)' };
+        return '<label class="freq-option"><input type="radio" name="freq" data-field="frequencia" value="' + opt + '"' + (f.frequencia===opt?' checked':'') + '>' + labels[opt] + '</label>';
+      }).join('') + '</div>';
+    if(f.frequencia === 'semanal'){
+      html += '<div class="weekday-toggles">' + WEEKDAYS_SHORT.map(function(w,idx){
+        var active = f.diasSemana.indexOf(idx) !== -1;
+        return '<button type="button" class="weekday-toggle' + (active?' active':'') + '" data-action="toggle-dia" data-day="' + idx + '">' + w + '</button>';
+      }).join('') + '</div>';
+    }
+    if(f.frequencia === 'alternado'){
+      html += '<p class="hint-text">A contagem de dias alternados começa na data de início informada acima.</p>';
+    }
+    html += '</div>';
+
+    html += '<div class="two-col">' +
+      '<div class="field"><label>Estoque atual (opcional)</label>' +
+      '<input type="number" min="0" data-field="estoqueAtual" value="' + f.estoqueAtual + '" placeholder="Ex: 30"></div>' +
+      '<div class="field"><label>Avisar quando restar</label>' +
+      '<input type="number" min="0" data-field="estoqueAlertaMinimo" value="' + f.estoqueAlertaMinimo + '" placeholder="Ex: 5"></div>' +
+    '</div>';
+
+    html += '<div class="modal-footer">' +
+      '<button class="btn btn-ghost" data-action="close-modal">Cancelar</button>' +
+      '<button class="btn btn-primary" data-action="save-med">Salvar</button>' +
+    '</div></div></div>';
+
+    document.getElementById('modalRoot').innerHTML = html;
+  }
+
+  function closeModal(){ modalForm = null; document.getElementById('modalRoot').innerHTML = ''; }
+
+  function validateMedForm(f){
+    var errors = [];
+    if(!f.nome || !f.nome.trim()) errors.push('Informe o nome do remédio.');
+    if(!f.dataInicio) errors.push('Informe a data de início.');
+    if(f.dataFim && f.dataFim < f.dataInicio) errors.push('A data de término deve ser igual ou posterior à data de início.');
+    if(f.frequencia === 'semanal' && f.diasSemana.length === 0) errors.push('Selecione ao menos um dia da semana.');
+    if(f.vezesPorDia < 1 || f.vezesPorDia > 6) errors.push('Quantidade de vezes ao dia deve ser entre 1 e 6.');
+    return errors;
+  }
+
+  async function saveMedFromForm(){
+    var f = modalForm;
+    var errors = validateMedForm(f);
+    if(errors.length){ renderMedModal(errors); return; }
+    var med = {
+      id: f.id || uid(),
+      nome: f.nome.trim(),
+      vezesPorDia: clamp(parseInt(f.vezesPorDia,10) || 1, 1, 6),
+      horarios: f.horarios.slice(0, f.vezesPorDia),
+      frequencia: f.frequencia,
+      diasSemana: f.frequencia === 'semanal' ? f.diasSemana.slice() : [],
+      dataInicio: f.dataInicio,
+      dataFim: f.dataFim || null,
+      estoqueAtual: f.estoqueAtual === '' ? null : Number(f.estoqueAtual),
+      estoqueAlertaMinimo: f.estoqueAlertaMinimo === '' ? null : Number(f.estoqueAlertaMinimo),
+      ativo: f.ativo !== false
+    };
+    var idx = state.meds.findIndex(function(m){ return m.id === med.id; });
+    if(idx === -1) state.meds.push(med); else state.meds[idx] = med;
+    await saveMedications(state.meds);
+    closeModal();
+    render();
+    showToast('Remédio salvo.');
+  }
+
+  /* ---------- Confirmação genérica ---------- */
+  function openConfirm(title, message, danger, onYes){
+    pendingConfirm = onYes;
+    var html = '<div class="modal-overlay" data-action="cancel-confirm"><div class="modal confirm-modal" data-stop="1">' +
+      '<h2>' + escapeHtml(title) + '</h2>' +
+      '<p>' + escapeHtml(message) + '</p>' +
+      '<div class="modal-footer">' +
+        '<button class="btn btn-ghost" data-action="cancel-confirm">Cancelar</button>' +
+        '<button class="btn ' + (danger ? 'btn-danger' : 'btn-primary') + '" data-action="confirm-yes">Confirmar</button>' +
+      '</div></div></div>';
+    document.getElementById('modalRoot').innerHTML = html;
+  }
+  function closeConfirm(){ pendingConfirm = null; document.getElementById('modalRoot').innerHTML = ''; }
+
+  /* ---------- Toast ---------- */
+  function showToast(msg){
+    var root = document.getElementById('toastRoot');
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    root.innerHTML = '';
+    root.appendChild(el);
+    requestAnimationFrame(function(){ el.classList.add('show'); });
+    setTimeout(function(){
+      el.classList.remove('show');
+      setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 250);
+    }, 2400);
+  }
+
+  /* ---------- Ações ---------- */
+  async function toggleDose(dateStr, medId, idx){
+    var key = doseKey(medId, idx);
+    if(!state.checkins[dateStr]) state.checkins[dateStr] = {};
+    var wasOn = !!state.checkins[dateStr][key];
+    state.checkins[dateStr][key] = !wasOn;
+    var med = state.meds.find(function(m){ return m.id === medId; });
+    if(med && typeof med.estoqueAtual === 'number'){
+      med.estoqueAtual = wasOn ? med.estoqueAtual + 1 : Math.max(0, med.estoqueAtual - 1);
+      await saveMedications(state.meds);
+    }
+    await saveCheckins(state.checkins);
+    render();
+  }
+
+  async function deleteMed(id){
+    state.meds = state.meds.filter(function(m){ return m.id !== id; });
+    await saveMedications(state.meds);
+    render();
+    showToast('Remédio excluído.');
+  }
+  async function toggleActiveMed(id){
+    var med = state.meds.find(function(m){ return m.id === id; });
+    if(!med) return;
+    med.ativo = med.ativo === false ? true : false;
+    await saveMedications(state.meds);
+    render();
+    showToast(med.ativo ? 'Remédio reativado.' : 'Remédio pausado.');
+  }
+
+  function exportBackup(){
+    var payload = { meds: state.meds, checkins: state.checkins, exportedAt: new Date().toISOString() };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'medcontrol-backup-' + todayStrBR() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    showToast('Backup exportado.');
+  }
+  function handleImportFile(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        if(!data || !Array.isArray(data.meds) || typeof data.checkins !== 'object'){
+          showToast('Arquivo inválido.'); return;
+        }
+        openConfirm('Importar backup', 'Isso substitui todos os remédios e o histórico atuais pelos dados do arquivo. Continuar?', true, async function(){
+          state.meds = data.meds;
+          state.checkins = data.checkins;
+          await saveMedications(state.meds);
+          await saveCheckins(state.checkins);
+          render();
+          showToast('Backup importado.');
+        });
+      }catch(e){ showToast('Não consegui ler o arquivo.'); }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ---------- Delegação de eventos ---------- */
+  document.getElementById('app-root').addEventListener('click', function(e){
+    var actionEl = e.target.closest('[data-action]');
+    if(!actionEl) return;
+    var action = actionEl.dataset.action;
+    if(action === 'set-tab'){
+      state.tab = actionEl.dataset.tab;
+      state.selectedCalDay = null;
+      render();
+    } else if(action === 'goto-remedios'){
+      state.tab = 'remedios'; render();
+    } else if(action === 'toggle-dose'){
+      toggleDose(actionEl.dataset.date, actionEl.dataset.med, parseInt(actionEl.dataset.idx,10));
+    } else if(action === 'cal-prev'){
+      state.calMonth--; if(state.calMonth<0){ state.calMonth=11; state.calYear--; }
+      state.selectedCalDay = null; render();
+    } else if(action === 'cal-next'){
+      state.calMonth++; if(state.calMonth>11){ state.calMonth=0; state.calYear++; }
+      state.selectedCalDay = null; render();
+    } else if(action === 'cal-select-day'){
+      state.selectedCalDay = (state.selectedCalDay === actionEl.dataset.date) ? null : actionEl.dataset.date;
+      render();
+    } else if(action === 'open-med-form'){
+      openMedForm(actionEl.dataset.id || null);
+    } else if(action === 'request-delete-med'){
+      var id = actionEl.dataset.id;
+      var med = state.meds.find(function(m){ return m.id === id; });
+      openConfirm('Excluir remédio', 'Excluir "' + (med?med.nome:'') + '"? Essa ação não pode ser desfeita.', true, function(){ deleteMed(id); });
+    } else if(action === 'toggle-active-med'){
+      toggleActiveMed(actionEl.dataset.id);
+    } else if(action === 'export-backup'){
+      exportBackup();
+    } else if(action === 'trigger-import'){
+      document.getElementById('importFileInput').click();
+    } else if(action === 'logout'){
+      signOut(auth);
+    } else if(action === 'install-app'){
+      if(deferredInstallPrompt){
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(function(){
+          deferredInstallPrompt = null;
+          document.getElementById('installBanner').style.display = 'none';
+        });
+      }
+    } else if(action === 'dismiss-install'){
+      dismissInstallBanner();
+      document.getElementById('installBanner').style.display = 'none';
+    } else if(action === 'request-wipe'){
+      openConfirm('Apagar todos os dados', 'Isso remove todos os remédios cadastrados e todo o histórico. Essa ação não pode ser desfeita.', true, async function(){
+        state.meds = []; state.checkins = {};
+        await saveMedications(state.meds); await saveCheckins(state.checkins);
+        render(); showToast('Todos os dados foram apagados.');
+      });
+    }
+  });
+
+  document.getElementById('modalRoot').addEventListener('click', function(e){
+    if(e.target.dataset.action === 'overlay-close' || e.target.dataset.action === 'close-modal'){ closeModal(); return; }
+    if(e.target.dataset.action === 'cancel-confirm'){ closeConfirm(); return; }
+    if(e.target.dataset.action === 'confirm-yes'){
+      var cb = pendingConfirm; closeConfirm(); if(cb) cb();
+      return;
+    }
+    if(e.target.dataset.action === 'save-med'){ saveMedFromForm(); return; }
+    if(e.target.dataset.action === 'toggle-dia'){
+      var day = parseInt(e.target.dataset.day, 10);
+      var i2 = modalForm.diasSemana.indexOf(day);
+      if(i2===-1) modalForm.diasSemana.push(day); else modalForm.diasSemana.splice(i2,1);
+      renderMedModal([]);
+      return;
+    }
+    if(e.target.dataset.action === 'toggle-dose'){
+      toggleDose(e.target.dataset.date, e.target.dataset.med, parseInt(e.target.dataset.idx,10));
+      return;
+    }
+    if(e.target.dataset.action === 'vezes-inc' || e.target.dataset.action === 'vezes-dec'){
+      var delta = e.target.dataset.action === 'vezes-inc' ? 1 : -1;
+      var n = clamp(modalForm.vezesPorDia + delta, 1, 6);
+      modalForm.vezesPorDia = n;
+      modalForm.horarios = resizeHorarios(modalForm.horarios, n);
+      renderMedModal([]);
+      return;
+    }
+  });
+  document.getElementById('modalRoot').addEventListener('input', function(e){
+    var field = e.target.dataset.field;
+    if(field && modalForm){
+      modalForm[field] = e.target.value;
+    }
+  });
+  document.getElementById('modalRoot').addEventListener('change', function(e){
+    if(e.target.name === 'freq'){
+      modalForm.frequencia = e.target.value;
+      renderMedModal([]);
+      return;
+    }
+    if(e.target.dataset.action === 'horario-hour' || e.target.dataset.action === 'horario-min'){
+      var idx = parseInt(e.target.dataset.idx, 10);
+      var group = e.target.closest('.time-select-group');
+      var hourVal = group.querySelector('[data-action="horario-hour"]').value;
+      var minVal = group.querySelector('[data-action="horario-min"]').value;
+      modalForm.horarios[idx] = (hourVal && minVal) ? (hourVal + ':' + minVal) : '';
+    }
+  });
+  document.getElementById('importFileInput').addEventListener('change', function(e){
+    if(e.target.files && e.target.files[0]) handleImportFile(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  /* ---------- Inicialização do app (após login) ---------- */
+  async function init(){
+    state.meds = await loadMedications();
+    state.checkins = await loadCheckins();
+    var t = dateStrToDate(todayStrBR());
+    state.calYear = t.getFullYear();
+    state.calMonth = t.getMonth();
+    state.loaded = true;
+    render();
+    if(refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(function(){
+      if(!document.getElementById('modalRoot').firstChild) render();
+    }, 30000);
+  }
+
+  /* ---------- PWA: instalar na tela inicial ---------- */
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+  function isStandaloneDisplay(){
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function isIOSDevice(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  }
+  function hasDismissedInstallBanner(){
+    try{ return localStorage.getItem('medcontrol_install_dismissed') === '1'; }catch(e){ return false; }
+  }
+  function dismissInstallBanner(){
+    try{ localStorage.setItem('medcontrol_install_dismissed', '1'); }catch(e){}
+  }
+  function maybeShowInstallBanner(){
+    if(!currentUser || isStandaloneDisplay() || hasDismissedInstallBanner()) return;
+    var banner = document.getElementById('installBanner');
+    if(deferredInstallPrompt){
+      banner.querySelector('.install-text').textContent = 'Instale o MedControl na tela inicial pra abrir mais rápido.';
+      banner.querySelector('[data-action="install-app"]').style.display = 'inline-block';
+      banner.style.display = 'flex';
+    } else if(isIOSDevice()){
+      banner.querySelector('.install-text').textContent = 'No iPhone: toque em Compartilhar e depois em "Adicionar à Tela de Início".';
+      banner.querySelector('[data-action="install-app"]').style.display = 'none';
+      banner.style.display = 'flex';
+    }
+  }
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    maybeShowInstallBanner();
+  });
+  window.addEventListener('appinstalled', function(){
+    deferredInstallPrompt = null;
+    document.getElementById('installBanner').style.display = 'none';
+  });
+
+  /* ---------- Autenticação (login / criar conta / sair) ---------- */
+  var authMode = 'entrar';
+  function updateAuthUI(){
+    document.querySelectorAll('#authScreen .auth-tab').forEach(function(b){
+      b.classList.toggle('active', b.dataset.authtab === authMode);
+    });
+    document.getElementById('authSubmitBtn').textContent = authMode === 'entrar' ? 'Entrar' : 'Criar conta';
+    document.getElementById('authForgotBtn').style.display = authMode === 'entrar' ? 'block' : 'none';
+    document.getElementById('authError').style.display = 'none';
+  }
+  function showAuthError(msg){
+    var el = document.getElementById('authError');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function translateAuthError(err){
+    var map = {
+      'auth/invalid-email': 'E-mail inválido.',
+      'auth/user-not-found': 'Não encontramos uma conta com esse e-mail.',
+      'auth/wrong-password': 'Senha incorreta.',
+      'auth/invalid-credential': 'E-mail ou senha incorretos.',
+      'auth/email-already-in-use': 'Já existe uma conta com esse e-mail.',
+      'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
+      'auth/missing-password': 'Informe a senha.',
+      'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco e tente de novo.',
+      'auth/unauthorized-domain': 'Este site ainda não está autorizado no Firebase. Vá em Authentication > Settings > Domínios autorizados e adicione este domínio.'
+    };
+    return (err && map[err.code]) || 'Não foi possível concluir. Tente de novo.';
+  }
+  async function handleAuthSubmit(){
+    var email = document.getElementById('authEmail').value.trim();
+    var pass = document.getElementById('authPassword').value;
+    if(!email || !pass){ showAuthError('Preencha e-mail e senha.'); return; }
+    try{
+      if(authMode === 'entrar'){
+        await signInWithEmailAndPassword(auth, email, pass);
+      } else {
+        await createUserWithEmailAndPassword(auth, email, pass);
+      }
+    }catch(err){ showAuthError(translateAuthError(err)); }
+  }
+  async function handleForgotPassword(){
+    var email = document.getElementById('authEmail').value.trim();
+    if(!email){ showAuthError('Digite seu e-mail acima e toque em "Esqueci minha senha" de novo.'); return; }
+    try{
+      await sendPasswordResetEmail(auth, email);
+      showToast('Enviamos um link de redefinição para ' + email + '.');
+    }catch(err){ showAuthError(translateAuthError(err)); }
+  }
+  document.getElementById('authScreen').addEventListener('click', function(e){
+    var tabBtn = e.target.closest('[data-authtab]');
+    if(tabBtn){ authMode = tabBtn.dataset.authtab; updateAuthUI(); return; }
+    if(e.target.id === 'authForgotBtn'){ handleForgotPassword(); return; }
+    if(e.target.id === 'authSubmitBtn'){ handleAuthSubmit(); return; }
+  });
+
+  onAuthStateChanged(auth, function(user){
+    currentUser = user;
+    if(user){
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('app-root').style.display = 'flex';
+      init();
+      maybeShowInstallBanner();
+    } else {
+      if(refreshTimer){ clearInterval(refreshTimer); refreshTimer = null; }
+      state.meds = []; state.checkins = {}; state.tab = 'hoje'; state.selectedCalDay = null; state.loaded = false;
+      document.getElementById('app-root').style.display = 'none';
+      document.getElementById('installBanner').style.display = 'none';
+      document.getElementById('authScreen').style.display = 'flex';
+    }
+  });
+})();
+</script>
+</body>
+</html>
